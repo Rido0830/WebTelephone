@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>WebTelephone 通話デモ</title>
+  <style>
+    body { font-family: system-ui, sans-serif; line-height: 1.6; padding: 16px; }
+    #log { white-space: pre-wrap; background: #f7f7f7; padding: 8px; border-radius: 8px; height: 200px; overflow-y: auto; }
+    button { padding: 10px 14px; font-size: 16px; margin: 4px; }
+  </style>
+</head>
+<body>
+  <h1>WebTelephone 通話デモ</h1>
+  <p>あなたのID: <span id="my-id">未接続</span></p>
+  <button id="start">初期化して参加</button>
+  <button id="disconnect" disabled>切断</button>
+  <div id="log"></div>
+  <audio id="remoteAudio" autoplay></audio>
+
+  <!-- SkyWay バンドル版SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@skyway-sdk/room/dist/skyway-room.bundle.js"></script>
+  <!-- メインのJSファイル -->
+  <script src="main.js"></script>
+</body>
+</html>
