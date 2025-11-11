@@ -5,8 +5,8 @@
   <title>WebTelephone 通話デモ</title>
   <style>
     body { font-family: system-ui, sans-serif; line-height: 1.6; padding: 16px; }
-    #log { white-space: pre-wrap; background: #f7f7f7; padding: 8px; border-radius: 8px; }
-    button { padding: 10px 14px; font-size: 16px; margin-top: 8px; }
+    #log { white-space: pre-wrap; background: #f7f7f7; padding: 8px; border-radius: 8px; height: 200px; overflow-y: auto; }
+    button { padding: 10px 14px; font-size: 16px; margin: 4px; }
   </style>
 </head>
 <body>
@@ -17,13 +17,14 @@
   <div id="log"></div>
   <audio id="remoteAudio" autoplay></audio>
 
-  <!-- SkyWay SDK -->
+  <!-- SkyWay バンドル版SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@skyway-sdk/room/dist/skyway-room.bundle.js"></script>
 
   <script>
     const { SkyWayContext, SkyWayRoom, SkyWayStreamFactory } = window.SkyWayRoom;
     const log = (msg) => {
       document.getElementById("log").textContent += msg + "\n";
+      document.getElementById("log").scrollTop = document.getElementById("log").scrollHeight;
       console.log(msg);
     };
 
@@ -33,7 +34,7 @@
       try {
         log("Context作成中...");
         context = await SkyWayContext.Create({
-          apiKey: "10232c12-2b1d-4bcb-b424-944877352c03", // ← RidoさんのAPIキー
+          apiKey: "10232c12-2b1d-4bcb-b424-944877352c03"
         });
 
         log("マイク取得中...");
@@ -42,17 +43,18 @@
         log("ルーム作成または参加中...");
         room = await SkyWayRoom.FindOrCreate(context, {
           type: "p2p",
-          name: "webtelephone-room",
+          name: "webtelephone-room"
         });
 
         me = await room.join();
         document.getElementById("my-id").textContent = me.id;
         document.getElementById("disconnect").disabled = false;
-
         log("あなたのID: " + me.id);
+
         await me.publish(audio);
         log("音声を公開しました。");
 
+        // 相手の音声購読
         room.onStreamPublished.add(async ({ publication, member }) => {
           if (member.id === me.id) return;
           log("相手の音声を購読します...");
@@ -64,13 +66,14 @@
         room.onMemberLeft.add(({ member }) => log("相手が退出: " + member.id));
 
         log("初期化完了。別のタブや端末で同じURLを開くと通話できます。");
+
       } catch (e) {
         console.error(e);
-        log("エラー: " + e.message);
+        log("エラー: " + (e.message || e));
       }
     });
 
-    // 🔴 切断ボタン
+    // 切断ボタン
     document.getElementById("disconnect").addEventListener("click", async () => {
       if (!me || !room) {
         log("接続されていません。");
@@ -82,10 +85,11 @@
         me = null;
         document.getElementById("my-id").textContent = "未接続";
         document.getElementById("disconnect").disabled = true;
+        document.getElementById("remoteAudio").srcObject = null;
         log("切断しました。");
       } catch (e) {
         console.error(e);
-        log("切断エラー: " + e.message);
+        log("切断エラー: " + (e.message || e));
       }
     });
   </script>
