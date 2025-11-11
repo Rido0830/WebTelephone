@@ -14,16 +14,14 @@
 
   <script>
     const peer = new Peer({
-      key: "10232c12-2b1d-4bcb-b424-944877352c03", // ←ここにアプリケーションIDを入れる
+      appId: "10232c12-2b1d-4bcb-b424-944877352c03", // ←ここはアプリケーションID
       debug: 3
     });
 
-    // 自分のPeer IDを画面に表示
     peer.on("open", id => {
       document.getElementById("my-id").textContent = id;
     });
 
-    // 通話開始ボタン
     document.getElementById("call").onclick = async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const call = peer.call(document.getElementById("peer-id").value, stream);
@@ -32,7 +30,6 @@
       });
     };
 
-    // エラーを画面に表示
     peer.on("error", err => {
       document.getElementById("my-id").textContent = "エラー: " + err;
     });
