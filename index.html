@@ -17,38 +17,47 @@
   <audio id="remoteAudio" autoplay></audio>
 
   <script type="module">
-    import { SkyWayContext, SkyWayRoom } from "https://cdn.jsdelivr.net/npm/@skyway-sdk/room/dist/skyway-room.esm.js";
+    import { SkyWayContext } from "https://cdn.jsdelivr.net/npm/@skyway-sdk/core@^4/dist/skyway-core.esm.js";
+    import { SkyWayRoom, SkyWayStreamFactory } from "https://cdn.jsdelivr.net/npm/@skyway-sdk/room@^4/dist/skyway-room.esm.js";
 
-    const log = (msg) => { document.getElementById('log').textContent += msg + '\n'; };
+    const log = (msg) => {
+      document.getElementById('log').textContent += msg + '\n';
+      console.log(msg);
+    };
 
     document.getElementById('start').addEventListener('click', async () => {
       try {
-        log('context作成中...');
+        log('Context 作成中...');
         const context = await SkyWayContext.Create({
-          apiKey: "10232c12-2b1d-4bcb-b424-944877352c03" // ←あなたのアプリケーションID
+          apiKey: "10232c12-2b1d-4bcb-b424-944877352c03" // ← あなたの SkyWay APIキー
         });
 
-        log('local person作成中...');
-        const me = await context.createLocalPerson();
+        log('音声ストリーム取得中...');
+        const { audio } = await SkyWayStreamFactory.createMicrophoneAudioStream();
+
+        log('ルーム作成または参加中...');
+        const room = await SkyWayRoom.FindOrCreate(context, { type: 'p2p', name: 'test-room' });
+
+        const me = await room.join();
         document.getElementById('my-id').textContent = me.id;
         log('あなたのID: ' + me.id);
 
-        log('マイク取得中...');
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        log('ルーム参加中...');
-        const room = await SkyWayRoom.FindOrCreate(context, { type: 'p2p' });
-        await room.join(me);
-        log('参加完了。音声を公開します...');
-        await me.publish(stream);
-
-        room.onStreamSubscribed.add(({ stream }) => {
-          log('相手の音声を購読しました。再生開始...');
-          document.getElementById('remoteAudio').srcObject = stream;
-        });
+        log('音声を公開中...');
+        await me.publish(audio);
 
         room.onMemberJoined.add(({ member }) => log('相手が参加: ' + member.id));
         room.onMemberLeft.add(({ member }) => log('相手が退出: ' + member.id));
+
+        room.onStreamPublished.add(async ({ publication, member }) => {
+          if (member.id === me.id) return; // 自分の公開はスキップ
+          log('相手の音声ストリームを購読します...');
+          const { stream } = await me.subscribe(publication.id);
+          document.getElementById('remoteAudio').srcObject = stream;
+        });
+
+        log('初期化完了。相手が参加すると通話できます。');
       } catch (e) {
+        console.error(e);
         log('エラー: ' + (e && e.message ? e.message : String(e)));
       }
     });
