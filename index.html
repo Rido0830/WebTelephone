@@ -2,37 +2,39 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>SkyWay通話デモ</title>
-  <script src="https://cdn.webrtc.ecl.ntt.com/skyway-js-sdk/skyway-js-sdk-latest.js"></script>
+  <title>SkyWay v4 通話デモ</title>
 </head>
 <body>
-  <h1>SkyWay通話デモ</h1>
+  <h1>SkyWay v4 通話デモ</h1>
   <p>あなたのID: <span id="my-id"></span></p>
-  <input id="peer-id" placeholder="相手のID">
-  <button id="call">通話開始</button>
   <audio id="remoteAudio" autoplay></audio>
 
-  <script>
-    const peer = new Peer({
-      apiKey: "10232c12-2b1d-4bcb-b424-944877352c03", // ←ここにアプリケーションID
-      debug: 3
-    });
+  <script type="module">
+    import { SkyWayContext, SkyWayRoom } from "https://cdn.jsdelivr.net/npm/@skyway-sdk/room/dist/skyway-room.esm.js";
 
-    peer.on("open", id => {
-      document.getElementById("my-id").textContent = id;
-    });
-
-    document.getElementById("call").onclick = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const call = peer.call(document.getElementById("peer-id").value, stream);
-      call.on("stream", remoteStream => {
-        document.getElementById("remoteAudio").srcObject = remoteStream;
+    (async () => {
+      // コンテキスト作成
+      const context = await SkyWayContext.Create({
+        apiKey: "10232c12-2b1d-4bcb-b424-944877352c03" // ←アプリケーションID
       });
-    };
 
-    peer.on("error", err => {
-      document.getElementById("my-id").textContent = "エラー: " + err;
-    });
+      // 自分のPerson作成
+      const me = await context.createLocalPerson();
+      document.getElementById("my-id").textContent = me.id;
+
+      // マイク取得
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // ルーム参加
+      const room = await SkyWayRoom.FindOrCreate(context, { type: "p2p" });
+      await room.join(me);
+      await me.publish(stream);
+
+      // 相手の音声を再生
+      room.onStreamSubscribed.add(({ stream }) => {
+        document.getElementById("remoteAudio").srcObject = stream;
+      });
+    })();
   </script>
 </body>
 </html>
