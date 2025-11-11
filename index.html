@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>WebRTC通話デモ</h1>
+  <button id="startBtn">通話開始</button>
+  <audio id="remoteAudio" autoplay></audio>
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const remoteAudio = document.getElementById("remoteAudio");
+
+    let pc;
+
+    startBtn.onclick = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      pc = new RTCPeerConnection();
+
+      stream.getTracks().forEach(track => pc.addTrack(track, stream));
+
+      pc.ontrack = event => {
+        remoteAudio.srcObject = event.streams[0];
+      };
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      console.log("Offer SDP:", offer.sdp);
+    };
+  </script>
+</body>
+</html>
