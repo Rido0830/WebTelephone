@@ -1,29 +1,28 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <meta charset="utf-8">
+  <title>SkyWay通話デモ</title>
+  <script src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+</head>
 <body>
-  <h1>WebRTC通話デモ</h1>
-  <button id="startBtn">通話開始</button>
+  <h1>SkyWay通話デモ</h1>
+  <input id="peer-id" placeholder="相手のID">
+  <button id="call">通話開始</button>
   <audio id="remoteAudio" autoplay></audio>
+
   <script>
-    const startBtn = document.getElementById("startBtn");
-    const remoteAudio = document.getElementById("remoteAudio");
+    const peer = new Peer({
+      key: "YOUR_API_KEY", // ダッシュボードで取得したAPIキーをここに
+      debug: 3
+    });
 
-    let pc;
-
-    startBtn.onclick = async () => {
+    document.getElementById("call").onclick = async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      pc = new RTCPeerConnection();
-
-      stream.getTracks().forEach(track => pc.addTrack(track, stream));
-
-      pc.ontrack = event => {
-        remoteAudio.srcObject = event.streams[0];
-      };
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      console.log("Offer SDP:", offer.sdp);
+      const call = peer.call(document.getElementById("peer-id").value, stream);
+      call.on("stream", remoteStream => {
+        document.getElementById("remoteAudio").srcObject = remoteStream;
+      });
     };
   </script>
 </body>
