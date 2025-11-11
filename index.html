@@ -7,14 +7,20 @@
 </head>
 <body>
   <h1>SkyWay通話デモ</h1>
+  <p>あなたのID: <span id="my-id"></span></p>
   <input id="peer-id" placeholder="相手のID">
   <button id="call">通話開始</button>
   <audio id="remoteAudio" autoplay></audio>
 
   <script>
     const peer = new Peer({
-      key: "10232c12-2b1d-4bcb-b424-944877352c03", // ダッシュボードで取得したAPIキーをここに
+      key: "10232c12-2b1d-4bcb-b424-944877352c03",
       debug: 3
+    });
+
+    // 自分のPeer IDを表示
+    peer.on("open", id => {
+      document.getElementById("my-id").textContent = id;
     });
 
     document.getElementById("call").onclick = async () => {
