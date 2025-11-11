@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>SkyWay通話デモ</title>
-  <script src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+  <script src="https://cdn.webrtc.ecl.ntt.com/skyway-js-sdk/skyway-js-sdk-latest.js"></script>
 </head>
 <body>
   <h1>SkyWay通話デモ</h1>
@@ -14,7 +14,7 @@
 
   <script>
     const peer = new Peer({
-      appId: "10232c12-2b1d-4bcb-b424-944877352c03", // ←ここにアプリケーションID
+      apiKey: "10232c12-2b1d-4bcb-b424-944877352c03", // ←ここにアプリケーションID
       debug: 3
     });
 
