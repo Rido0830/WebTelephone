@@ -1,4 +1,8 @@
-// SkyWay音声通話デモ（p2p room）
+import {
+  SkyWayContext,
+  SkyWayRoom
+} from "https://cdn.jsdelivr.net/npm/@skyway-sdk/room/dist/skyway-room.esm.js";
+
 const log = (msg) => {
   const logDiv = document.getElementById("log");
   logDiv.textContent += msg + "\n";
@@ -15,8 +19,8 @@ const remoteAudio = document.getElementById("remoteAudio");
 let context, me, room;
 let joined = false;
 
-// ★ あなたのAPIキーをここに貼ってください（絶対にGitHubに公開しないで！）
-const API_KEY = "10232c12-2b1d-4bcb-b424-944877352c03", //例: "10232c12-2b1d-4bcb-b424-944877352c03"
+// ✅ あなたの API キー
+const API_KEY = "10232c12-2b1d-4bcb-b424-944877352c03";
 
 startBtn.onclick = async () => {
   try {
@@ -24,7 +28,7 @@ startBtn.onclick = async () => {
     startBtn.disabled = true;
 
     log("SkyWay初期化中...");
-    context = await SkyWay.SkyWayContext.Create(API_KEY);
+    context = await SkyWayContext.Create({ apiKey: API_KEY });
 
     me = await context.createLocalPerson();
     myIdSpan.textContent = me.id;
@@ -34,7 +38,7 @@ startBtn.onclick = async () => {
     const localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
     log("ルーム参加中...");
-    room = await SkyWay.SkyWayRoom.FindOrCreate(context, { type: "p2p" });
+    room = await SkyWayRoom.FindOrCreate(context, { type: "p2p" });
     await room.join(me);
     joined = true;
     statusSpan.textContent = "接続中";
