@@ -2,24 +2,34 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>WebTelephone 通話デモ</title>
+  <title>SkyWay Voice Chat Demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body { font-family: system-ui, sans-serif; line-height: 1.6; padding: 16px; }
-    #log { white-space: pre-wrap; background: #f7f7f7; padding: 8px; border-radius: 8px; height: 200px; overflow-y: auto; }
-    button { padding: 10px 14px; font-size: 16px; margin: 4px; }
+    body { font-family: system-ui, sans-serif; padding: 16px; line-height:1.6; }
+    button { margin: 6px; padding: 8px 12px; }
+    #log { white-space: pre-wrap; background:#f7f7f7; padding:10px; border-radius:8px; height:140px; overflow:auto; }
   </style>
 </head>
 <body>
-  <h1>WebTelephone 通話デモ</h1>
-  <p>あなたのID: <span id="my-id">未接続</span></p>
-  <button id="start">初期化して参加</button>
-  <button id="disconnect" disabled>切断</button>
+  <h2>SkyWay 音声通話デモ</h2>
+
+  <div>
+    <button id="start">接続開始</button>
+    <button id="stop" disabled>切断</button>
+  </div>
+
+  <div style="margin-top:12px;">
+    <strong>あなたのID:</strong> <span id="myId">-</span><br>
+    <strong>接続状態:</strong> <span id="status">未接続</span>
+  </div>
+
+  <h3>ログ</h3>
   <div id="log"></div>
+
   <audio id="remoteAudio" autoplay></audio>
 
-  <!-- SkyWay バンドル版SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@skyway-sdk/room/dist/skyway-room.bundle.js"></script>
-  <!-- メインのJSファイル -->
+  <!-- SkyWayバンドル版 -->
+  <script src="https://cdn.jsdelivr.net/npm/@skyway-sdk/room-bundle"></script>
   <script src="main.js"></script>
 </body>
 </html>
