@@ -19,7 +19,7 @@ const remoteAudio = document.getElementById("remoteAudio");
 let context, me, room;
 let joined = false;
 
-// ✅ あなたの API キー
+// ⚠ APIキーは本番では絶対に直書きしないこと
 const API_KEY = "10232c12-2b1d-4bcb-b424-944877352c03";
 
 startBtn.onclick = async () => {
@@ -35,25 +35,27 @@ startBtn.onclick = async () => {
     log("あなたのID: " + me.id);
 
     log("マイク取得中...");
-    const localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const localMedia = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    log("ストリーム作成中...");
+    const localStream = await me.createStream(localMedia);
 
     log("ルーム参加中...");
     room = await SkyWayRoom.FindOrCreate(context, { type: "p2p" });
     await room.join(me);
+
     joined = true;
     statusSpan.textContent = "接続中";
 
-    // 自分の音声を送信
     await me.publish(localStream);
     log("音声送信中...");
 
-    // 相手の音声を受信
-    room.onStreamSubscribed.add(({ stream }) => {
-      log("相手の音声ストリーム受信");
-      remoteAudio.srcObject = stream;
+    // ---- 相手のストリーム受信 ----
+    room.onStreamSubscribed.add(({ subscription }) => {
+      log("相手の音声受信");
+      remoteAudio.srcObject = subscription.stream;
     });
 
-    // 相手の参加・退出ログ
     room.onMemberJoined.add(({ member }) => log("相手が参加: " + member.id));
     room.onMemberLeft.add(({ member }) => log("相手が退出: " + member.id));
 
@@ -71,6 +73,7 @@ stopBtn.onclick = async () => {
 
     await room.leave(me);
     joined = false;
+
     statusSpan.textContent = "切断済み";
     startBtn.disabled = false;
     stopBtn.disabled = true;
